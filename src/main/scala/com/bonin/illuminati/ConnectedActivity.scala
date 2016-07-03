@@ -4,8 +4,12 @@ import android.app.Activity
 import android.os.{AsyncTask, Bundle}
 import android.widget.{ArrayAdapter, Toast}
 import Helper._
+import android.content.DialogInterface
+import android.view.View.OnClickListener
 import android.graphics.Bitmap
 import android.util.Log
+import android.view.View
+import android.view.View.OnClickListener
 /**
   * Created by alex4o on 7/3/16.
   */
@@ -27,10 +31,10 @@ class ConnectedActivity extends Activity with TypedFindView {
 
     if(!Data.server){
       Data.socket.connect()
-
     }else{
 
     }
+
     if(Data.socket.isConnected()){
       val instream = Data.socket getInputStream
       val outstream = Data.socket getOutputStream
@@ -51,6 +55,7 @@ class ConnectedActivity extends Activity with TypedFindView {
         outstream flush
 
         text setText ""
+
       }
       val thread = new Thread({
 
@@ -91,6 +96,8 @@ class ConnectedActivity extends Activity with TypedFindView {
         }
 
       }).start()
+
+
 
 //      val task = new AsyncTask[Unit, Array[Byte], String] {
 //

@@ -54,24 +54,28 @@ class MainActivity extends Activity with TypedFindView {
       })
 
       server onClick {
-        val thread = new Thread({
-          runOnUiThread {
-            server setText "Connecting..."
-          }
-          val sock = btAdapter.listenUsingRfcommWithServiceRecord("BONIN", uuid)
-          val accepted = sock.accept()
-          Data.socket = accepted
-          Data.server = true
-          Data.device = accepted.getRemoteDevice
-
-          runOnUiThread {
-            val myIntent : Intent = new Intent(this, classOf[ConnectedActivity])
-            startActivity(myIntent)
-          }
-        })
-        thread.start()
-
+        Toast makeText(getApplicationContext, "Hello", Toast.LENGTH_LONG) show
       }
+
+//      server onClick {
+//        val thread = new Thread({
+//          runOnUiThread {
+//            server setText "Connecting..."
+//          }
+//          val sock = btAdapter.listenUsingRfcommWithServiceRecord("BONIN", uuid)
+//          val accepted = sock.accept()
+//          Data.socket = accepted
+//          Data.server = true
+//          Data.device = accepted.getRemoteDevice
+//
+//          runOnUiThread {
+//            val myIntent : Intent = new Intent(this, classOf[ConnectedActivity])
+//            startActivity(myIntent)
+//          }
+//        })
+//        thread.start()
+//
+//      }
         // list.setAdapter()
     }
 }
