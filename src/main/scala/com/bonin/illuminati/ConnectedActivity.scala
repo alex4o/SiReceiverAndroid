@@ -10,6 +10,7 @@ import android.graphics.Bitmap
 import android.util.Log
 import android.view.View
 import android.view.View.OnClickListener
+
 /**
   * Created by alex4o on 7/3/16.
   */

@@ -13,20 +13,20 @@ import android.widget.{AdapterView, Button, ListView}
 object Helper {
 
   implicit def func2onclicklistener(f: View => Unit) : View.OnClickListener = {
-    return new OnClickListener {
+    new OnClickListener {
       override def onClick(view: View): Unit = f(view)
     }
   }
 
 
   implicit def funcnoparam2onclicklistener(f: () => Unit) : View.OnClickListener = {
-    return new OnClickListener {
+    new OnClickListener {
       override def onClick(view: View): Unit = f()
     }
   }
 
   implicit def funcnoparam2onitemclicklistener(f: (AdapterView[_], View, Int, Long) => Unit) : AdapterView.OnItemClickListener = {
-    return new OnItemClickListener {
+    new OnItemClickListener {
       override def onItemClick(adapterView: AdapterView[_], view: View, i: Int, l: Long): Unit = {
         f(adapterView, view, i, l)
       }
@@ -42,7 +42,7 @@ object Helper {
   }
 
   implicit def unit2onclicklistener(f: => Unit) : View.OnClickListener = {
-    return new OnClickListener {
+    new OnClickListener {
       override def onClick(view: View): Unit = () => f
     }
   }
@@ -56,10 +56,10 @@ object Helper {
   }
 
   implicit def Int2ByteArray(value : Int) : Array[Byte] = {
-    return ByteBuffer allocate(4) putInt(value) array
+    ByteBuffer allocate(4) putInt(value) array
   }
   implicit def ByteArray2Int(bytes: Array[Byte]) : Int = {
-    return ByteBuffer wrap(bytes) getInt
+    ByteBuffer wrap(bytes) getInt
   }
 
 

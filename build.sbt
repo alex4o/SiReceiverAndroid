@@ -13,6 +13,7 @@ javacOptions in Compile ++= "-source" :: "1.7" :: "-target" :: "1.7" :: Nil
 
 resolvers += "jcenter" at "http://jcenter.bintray.com"
 resolvers += Resolver.typesafeRepo("releases")
+resolvers += Resolver.bintrayRepo("mfglabs", "maven")
 
 
 
