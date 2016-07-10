@@ -22,29 +22,33 @@ class MainActivity extends Activity with TypedFindView {
 
     val uuid = UUID.fromString("4ec5de5d-7be7-442b-b7f1-37207d2aa4ff")
 
-  def switchFragment(actor : ActorRef): Unit ={
-    Log.d("switching", "fragment to be switched")
+  def switchFragment(actor : ActorRef): Unit = runOnUiThread
+  {
 
-    val fields = actor.getClass.getDeclaredFields().foreach(f => {
-      Log.d("Field", f.getName)
-    })
+      Log.d("switching", "fragment to be switched")
 
-    val cellField = actor.getClass.getDeclaredField("_cellDoNotCallMeDirectly")
-    cellField.setAccessible(true)
-
-    val cell = cellField.get(actor)
-    val actorReal = cell.getClass.getDeclaredField("_actor")
-    actorReal.setAccessible(true)
+      //    val fields = actor.getClass.getDeclaredFields().foreach(f => {
+      //      Log.d("Field", f.getName)
+      //    })
 
 
-    //cell.setAccessible(true)
-    //val fragment = cell.get(actor).getClass.getDeclaredField("_actor")
-    runOnUiThread
-    {
-      var fragmentTransaction = fm.beginTransaction()
-      fragmentTransaction = fragmentTransaction.replace(android.R.id.content, actorReal.get(cell).asInstanceOf[Fragment])
+      println(actor.getClass toString)
+
+      val underlying = actor.getClass.getDeclaredMethod("underlying")
+      //cellField.setAccessible(true)
+      val cell = underlying.invoke(actor)
+
+      println(cell.getClass toString)
+
+
+      val actorReal = cell.getClass.getDeclaredMethod("actor").invoke(cell)
+
+
+      val fragment = actorReal.asInstanceOf[Fragment]
+      val fragmentTransaction = fm.beginTransaction()
+      val fragmentTransactionNew = fragmentTransaction.replace(android.R.id.content, fragment)
       val res = fragmentTransaction.commit()
-    }
+  }
 
 
 //    (actor ? Data.GetThis).onSuccess({
@@ -55,7 +59,6 @@ class MainActivity extends Activity with TypedFindView {
 //        }))
 //      }
 //    })
-  }
 
    override def onCreate(savedInstanceState: Bundle): Unit = {
      super.onCreate(savedInstanceState)
