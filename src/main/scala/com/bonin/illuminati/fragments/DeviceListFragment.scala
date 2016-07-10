@@ -56,10 +56,7 @@ class DeviceListFragment extends Fragment with Actor with TypedFindView{
   }
 
   override def receive: Receive = {
-    case GetThis => {
-      main = sender
-      main ! This(this)
-    }
+
     case Devices(devices : Set[BluetoothDevice]) => {
       Log.d("WTF", "Device List")
 
@@ -72,12 +69,12 @@ class DeviceListFragment extends Fragment with Actor with TypedFindView{
       Log.d("WTF", "Connected")
 
       server setText "Connected!"
-      this.getActivity.asInstanceOf[MainActivity].switchFragment(Data.system.actorOf(Props(new ConnectionFragment)))
 
-//      main ! Data.SwitchTo(classOf[ConnectionFragment])
-    }
-    case _ => {
-      this.getActivity.asInstanceOf[MainActivity].switchFragment(Data.system.actorOf(Props(new ConnectionFragment), "ConnectionActor"))
+      val actor = Data.system.actorOf(Props(new ConnectionFragment), "ConnectionActor")
+      /* when the ActorRef isn't saved in a variable the Cell is of type UncreatedActorCell
+       which does not heave an referance to the original actor */
+      this.getActivity.asInstanceOf[MainActivity].switchFragment(actor)
+
     }
   }
 
