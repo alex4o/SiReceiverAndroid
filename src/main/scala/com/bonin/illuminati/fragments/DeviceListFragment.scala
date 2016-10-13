@@ -24,6 +24,7 @@ class DeviceListFragment extends Fragment with Actor with TypedFindView{
   lazy val list = findView(TR.listView)
   lazy val ctx = this.getActivity.getApplicationContext
   lazy val la = new DeviceArrayAdapter(ctx, android.R.layout.simple_list_item_1)
+
   var view: View = null
   var main: ActorRef = null
 
@@ -40,11 +41,14 @@ class DeviceListFragment extends Fragment with Actor with TypedFindView{
     list.setOnItemClickListener((adaptorView: AdapterView[_], view: View, item: Int, long: Long) => {
       val device = adaptorView.getItemAtPosition(item).asInstanceOf[BluetoothDevice]
 
+
       Data.btActor ! Connect(device)
+      server setText s"Connecting to ${device.getName}"
+
     })
 
     server onClick {
-      server setText "Connecting..."
+      server setText "Waiting for connection..."
       Log.d("WTF", Data.btActor.toString())
 
       Data.btActor ! Accept
@@ -56,26 +60,30 @@ class DeviceListFragment extends Fragment with Actor with TypedFindView{
   }
 
   override def receive: Receive = {
-
+    case Data.GetThis => {
+      sender ! Data.This(this)
+    }
     case Devices(devices : Set[BluetoothDevice]) => {
       Log.d("WTF", "Device List")
-
-      la.addAll(devices)
+      getActivity.runOnUiThread {
+        la.addAll(devices)
+      }
     }
-
-    case Connected(bluetoothSocket: Any) => {
+    case Connected(bluetoothSocket: BluetoothSocket) =>
       //val myIntent : Intent = new Intent(this, classOf[ConnectedActivity])
       //startActivity(myIntent)
       Log.d("WTF", "Connected")
 
-      server setText "Connected!"
+      getActivity.runOnUiThread {
+        server setText "Connected!"
+      }
 
       val actor = Data.system.actorOf(Props(new ConnectionFragment), "ConnectionActor")
       /* when the ActorRef isn't saved in a variable the Cell is of type UncreatedActorCell
        which does not heave an referance to the original actor */
       this.getActivity.asInstanceOf[MainActivity].switchFragment(actor)
 
-    }
+
   }
 
   override protected def findViewById(id: Int): View = {

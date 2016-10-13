@@ -14,6 +14,7 @@ object Data {
   var server : Boolean = false
   val system = ActorSystem("AndroidSystem")
   lazy val btActor = system.actorOf(Props(new BluetoothActor("4ec5de5d-7be7-442b-b7f1-37207d2aa4ff","BONIN")))
+  lazy val fma = Data.system.actorOf(Props(new FragmentManagerActor()), "FragmentManagerActor")
 
   case object GetThis
   case class This(t: Any)

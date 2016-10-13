@@ -1,26 +1,19 @@
 package com.bonin.illuminati
 
-
-import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 import akka.actor.{ActorRef, Props}
-import akka.pattern.ask
+
 import akka.util.Timeout
 import android.app.{Activity, Fragment}
 import android.os.Bundle
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import Helper._
 import android.util.Log
 
 class MainActivity extends Activity with TypedFindView {
     lazy val fm = getFragmentManager
     implicit val max : Timeout = new Timeout(1, TimeUnit.HOURS)
-
-
-
-    val uuid = UUID.fromString("4ec5de5d-7be7-442b-b7f1-37207d2aa4ff")
 
   def switchFragment(actor : ActorRef): Unit = runOnUiThread
   {
@@ -68,7 +61,11 @@ class MainActivity extends Activity with TypedFindView {
 
 
      val actor = Data.system.actorOf(Props(new DeviceListFragment()), "MainActor")
-     switchFragment(actor)
+
+
+     Data.fma ! FragmentManager.AttachTo(this)
+     Data.fma ! FragmentManager.Create(actor)
+
 
 
 
