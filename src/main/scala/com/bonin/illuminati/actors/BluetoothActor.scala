@@ -29,7 +29,7 @@ object BluetoothActor {
   case class Connected(bluetoothSocket: BluetoothSocket)
 
   case class Send(data: Any)
-  case class Received(data: Array[Byte])
+  case class Received(data: Byte)
   case class Disconected(msg: String)
 
   case class Devices(devices: Set[BluetoothDevice])
@@ -55,10 +55,17 @@ class BluetoothActor(uuidString: String, name: String) extends Actor {
       val commander = sender
 
       Future {
-        val socket = device.createRfcommSocketToServiceRecord(uuid)
+        val uuids = device.getUuids
+        val socket = device.createInsecureRfcommSocketToServiceRecord(uuids(0).getUuid)
+
+        Log.d("CON","Connecting !!!")
         socket.connect()
+        Log.d("CON","Connected !!!")
+
         instream = socket.getInputStream
         outstream = socket.getOutputStream
+        Log.d("CON","Streams !!!")
+
         socket
       } onSuccess {
         case sock => {
@@ -115,40 +122,36 @@ class BluetoothActor(uuidString: String, name: String) extends Actor {
     case Subscribe => {
       val subscriber = sender
       val thread = new Thread {
-        while(btSocket isConnected){
-          try{
+        while(btSocket isConnected) try{
 
-            Log.d("READ", "BEGIN: " + btSocket.getRemoteDevice.getName )
-
-
-            var buffer : Array[Byte] = new Array[Byte](4)
-            var read = instream read buffer
+          Log.d("READ", "BEGIN: " + btSocket.getRemoteDevice.getName )
 
 
-            val length : Int = buffer
-            Log.d("LENGTH", length.toString)
+          var buffer : Array[Byte] = new Array[Byte](1)
+          var read = instream read buffer
 
 
-            buffer = new Array[Byte](length)
+          //val length : Int = buffer
+          //Log.d("LENGTH", length.toString)
 
-            read = instream read buffer
 
-            Log.d("READ", read.toString)
-            Log.d("BUFFER", new String(buffer))
+          //buffer = new Array[Byte](length)
 
-            subscriber ! Received(buffer)
+          //read = instream read buffer
 
-          }catch{
-            case e : java.io.IOException => {
-              Log.e("FUCK", e.getMessage, e)
-              self ! Disconect
-              subscriber ! Disconected(e.getMessage)
-            }
+          //Log.d("READ", read.toString)
+          //Log.d("BUFFER", new String(buffer))
+
+          subscriber ! Received(buffer(0))
+
+        }catch{
+          case e : java.io.IOException => {
+            Log.e("FUCK", e.getMessage, e)
+            self ! Disconect
+            subscriber ! Disconected(e.getMessage)
           }
         }
       }
     }
   }
-
-
 }

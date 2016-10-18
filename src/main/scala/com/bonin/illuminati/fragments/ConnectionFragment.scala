@@ -1,6 +1,6 @@
 package com.bonin.illuminati
 
-import akka.actor.Actor
+import akka.actor.{Actor, Props}
 import akka.actor.Actor.Receive
 import android.app.Fragment
 import android.bluetooth.BluetoothDevice
@@ -10,6 +10,8 @@ import android.view.{LayoutInflater, View, ViewGroup}
 import android.widget.{AdapterView, ArrayAdapter, Toast}
 import com.bonin.illuminati.BluetoothActor._
 import Helper._
+import com.bonin.illuminati.actors.{DataActor, Payload}
+import com.bonin.illuminati.actors.DataActor.ReceivedPayload
 
 /**
   * Created by alex4o on 7/8/16.
@@ -27,7 +29,10 @@ class ConnectionFragment extends Fragment with Actor with TypedFindView{
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle): View = {
     view = inflater.inflate(R.layout.connected, container, false)
 
-    Data.btActor ! Subscribe
+    val DataActo = Data.system.actorOf(Props(new DataActor(Data.btActor)), "DataActor")
+    DataActo ! Subscribe
+
+    //Data.btActor ! Subscribe
 
     button onClick {
 
@@ -48,11 +53,13 @@ class ConnectionFragment extends Fragment with Actor with TypedFindView{
   }
 
   override def receive: Receive = {
+    case ReceivedPayload(payload: Payload) => {
+      getActivity.runOnUiThread {
+        adapter.insert(payload.toString, 0)
+      }
+    }
     case Data.GetThis => {
       sender ! Data.This(this)
-    }
-    case Received(data : Array[Byte]) => getActivity.runOnUiThread {
-      adapter.add(new String(data))
     }
     case Disconected(msg: String) => getActivity.runOnUiThread {
       this.getActivity.getActionBar.setTitle("Disconnected")
