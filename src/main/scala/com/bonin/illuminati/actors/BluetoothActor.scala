@@ -13,6 +13,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.JavaConversions._
 import scala.concurrent.Future
 
+import java.nio.ByteBuffer
+
+
 import Helper._
 
 /**
@@ -29,7 +32,7 @@ object BluetoothActor {
   case class Connected(bluetoothSocket: BluetoothSocket)
 
   case class Send(data: Any)
-  case class Received(data: Byte)
+  case class Received(data: Array[Byte])
   case class Disconected(msg: String)
 
   case class Devices(devices: Set[BluetoothDevice])
@@ -124,11 +127,32 @@ class BluetoothActor(uuidString: String, name: String) extends Actor {
       val thread = new Thread {
         while(btSocket isConnected) try{
 
-          Log.d("READ", "BEGIN: " + btSocket.getRemoteDevice.getName )
+          //og.d("READ", "BEGIN: " + btSocket.getRemoteDevice.getName )
+
+          //var buffer : Array[Byte] = new Array[Byte](1)
+          //var read = instream read buffer
+          //Log.d("BRES", (buffer(0) & 0xFF) toString )
+
+          
 
 
-          var buffer : Array[Byte] = new Array[Byte](1)
+          var buffer : Array[Byte] = new Array[Byte](4)
           var read = instream read buffer
+
+          if(buffer(0) == -34 && buffer(1) == -83){
+            if(buffer(2) > 0 && buffer(2) < 64)
+            {
+              if(buffer(3) != 3){
+                Log.d("BAD_MESSAGE", s"TYPE: ${buffer(3)}")
+              }
+              buffer = new Array[Byte](buffer(2) - 1)
+              var read = instream read buffer
+
+
+              //val buf : ByteBuffer = ByteBuffer.wrap buffer
+              subscriber ! Received(buffer)
+            }
+          }
 
 
           //val length : Int = buffer
@@ -142,7 +166,7 @@ class BluetoothActor(uuidString: String, name: String) extends Actor {
           //Log.d("READ", read.toString)
           //Log.d("BUFFER", new String(buffer))
 
-          subscriber ! Received(buffer(0))
+          //subscriber ! Received(buffer(0))
 
         }catch{
           case e : java.io.IOException => {

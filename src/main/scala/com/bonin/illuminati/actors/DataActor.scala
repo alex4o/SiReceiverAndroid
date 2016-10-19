@@ -18,11 +18,11 @@ object DataActor {
   case class GetError(t: Int)// 0 => fifo, 1 => int
 }
 
-class Payload(payloadBuff: Array[Byte])
+class Payload(payloadBuff: Array[Int])
 {
 
-  var Rssi: Byte = 0x00
-  var PwrLevel : Byte = 0x00
+  var Rssi: Int = 0x00
+  var PwrLevel : Int = 0x00
   var Longtitude : Int = -0
   var Latitude : Int = -0
   var PacketId : Int = -0
@@ -50,75 +50,93 @@ class DataActor(actor: ActorRef) extends Actor {
     case Subscribe => {
       ui = sender
     }
-    case Received(data: Byte) => {
+    case Received(data: Array[Byte]) => {
       val commander = sender
+      var res = data.map(x => x & 0xFF)
 
-      pi match {
-        case 0 =>{
-          if(data != 0xDE){
-            pi = 0;
-            return null;
-          }
-          else {
-            pi += 1
-            payloadBuff(pi) = data
-          }
-        }
-        case 1 =>
-        {
-          if(data != 0xAD){
-            pi = 0;
-            return null;
-          }
-          else {
-            pi += 1
-            payloadBuff(pi) = data
-          }
-        }
-        case 2 =>
-        {
-          payloadLen = (data - 1).toByte;
-          if(payloadLen > 0x40)
-          {
-            pi = 0;
-            return null;
-          }
-          pi += 1
-          payloadBuff(pi) = payloadLen;
-        }
-        case _ => {
-          pi += 1
 
-          payloadBuff(pi) = data;
-          if(pi - 4 == payloadLen)
-          {
+      //Log.d("BYTE:", data & 0xFF)
+      // for(x <- data){
+      //   Log.d("BYTE:", x.toString)
+      // }
+      //   Log.d("LEN:", s"len: ${data.length}")
 
-            payloadBuff(3) match {
-              case 0 => ui ! Init(false)
-              case 1 => ui ! Init(true)
-              case 2 => ui ! CrcError()
-              case 3 => {
-                var buffer = new Array[Byte](payloadLen);
-                Array.copy(payloadBuff, 4, buffer, 0, payloadLen)
-                //Buffer.BlockCopy(payloadBuff, 4, buffer, 0, payloadLen);
-                try
-                {
-                  var trp = new Payload(buffer);
-                  ui ! ReceivedPayload(trp)
-                }catch {
-                  case e: IllegalArgumentException => {
-                    Log.e("ERROR!!!!", e.getMessage)
-                  }
-                }
-              }
-              case 4 => ui ! GetError(0)
-              case 5 => ui ! GetError(1)
 
-            }
-            pi = 0;
-          }
-        }
-    }
+      var trp = new Payload(res);
+      Log.d("PAYLOAD", trp toString)
+
+
+      ui ! ReceivedPayload(trp)
+      return null;
+
+
+      // pi match {
+      //   case 0 =>{
+      //     if(data != -34){
+      //       pi = 0;
+      //       return null;
+      //     }
+      //     else {
+      //       payloadBuff(pi) = data
+      //       pi += 1
+
+      //     }
+      //   }
+      //   case 1 =>
+      //   {
+      //     if(data != -83){
+      //       pi = 0;
+      //       return null;
+      //     }
+      //     else {
+      //       payloadBuff(pi) = data
+      //       pi += 1
+      //     }
+      //   }
+      //   case 2 =>
+      //   {
+      //     payloadLen = (data - 1).toByte;
+      //     if(payloadLen < 0 || payloadLen > 0x40)
+      //     {
+      //       pi = 0;
+      //       return null;
+      //     }
+      //     payloadBuff(pi) = payloadLen;
+      //     pi += 1
+      //   }
+      //   case _ => {
+      //     payloadBuff(pi) = data;
+      //     pi += 1
+
+      //     if(pi - 4 == payloadLen)
+      //     {
+
+      //       payloadBuff(3) match {
+      //         case 0 => ui ! Init(false)
+      //         case 1 => ui ! Init(true)
+      //         case 2 => ui ! CrcError()
+      //         case 3 => {
+      //           var buffer = new Array[Byte](payloadLen);
+      //           Array.copy(payloadBuff, 4, buffer, 0, payloadLen)
+      //           //Buffer.BlockCopy(payloadBuff, 4, buffer, 0, payloadLen);
+      //           try
+      //           {
+      //             var trp = new Payload(buffer);
+      //             ui ! ReceivedPayload(trp)
+      //           }catch {
+      //             case e: IllegalArgumentException => {
+      //               Log.e("ERROR!!!!", e.getMessage)
+      //             }
+      //           }
+      //         }
+      //         case 4 => ui ! GetError(0)
+      //         case 5 => ui ! GetError(1)
+
+      //       }
+      //       pi = 0;
+      //     }
+      //  }
+   // }
   }
   }
 }

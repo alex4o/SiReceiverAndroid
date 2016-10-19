@@ -30,12 +30,14 @@ class ConnectionFragment extends Fragment with Actor with TypedFindView{
     view = inflater.inflate(R.layout.connected, container, false)
 
     val DataActo = Data.system.actorOf(Props(new DataActor(Data.btActor)), "DataActor")
-    DataActo ! Subscribe
-
+    Data.btActor ! Send(0xFF)
     //Data.btActor ! Subscribe
 
-    button onClick {
+    list.setAdapter(adapter)
 
+    DataActo ! Subscribe
+
+    button onClick {
       
       //adapter.insert(text.getText.toString, 0)
       //val bytes = text.getText().toString().getBytes()
