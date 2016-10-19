@@ -77,7 +77,7 @@ class DataActor(actor: ActorRef) extends Actor {
         }
         case 2 =>
         {
-          payloadLen = (data - 1).asInstanceOf[Byte];
+          payloadLen = (data - 1).toByte;
           if(payloadLen > 0x40)
           {
             pi = 0;
@@ -99,7 +99,7 @@ class DataActor(actor: ActorRef) extends Actor {
               case 2 => ui ! CrcError()
               case 3 => {
                 var buffer = new Array[Byte](payloadLen);
-                Array.copy(payloadBuff, 4, buffer, 0, payloadLen))
+                Array.copy(payloadBuff, 4, buffer, 0, payloadLen)
                 //Buffer.BlockCopy(payloadBuff, 4, buffer, 0, payloadLen);
                 try
                 {

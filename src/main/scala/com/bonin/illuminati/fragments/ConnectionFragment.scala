@@ -36,12 +36,13 @@ class ConnectionFragment extends Fragment with Actor with TypedFindView{
 
     button onClick {
 
-      adapter.insert(text.getText.toString, 0)
-      val bytes = text.getText().toString().getBytes()
+      
+      //adapter.insert(text.getText.toString, 0)
+      //val bytes = text.getText().toString().getBytes()
 
-      Data.btActor ! Send(bytes)
+      //Data.btActor ! Send(bytes)
 
-      text setText ""
+      //text setText ""
 
     }
 
