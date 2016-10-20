@@ -24,7 +24,6 @@ class MainActivity extends Activity with TypedFindView {
       //      Log.d("Field", f.getName)
       //    })
 
-
       println(actor.getClass toString)
 
       val underlying = actor.getClass.getDeclaredMethod("underlying")
@@ -55,6 +54,7 @@ class MainActivity extends Activity with TypedFindView {
 
    override def onCreate(savedInstanceState: Bundle): Unit = {
      super.onCreate(savedInstanceState)
+     Data.activity = this
      //setContentView(R.layout.main)
 
     //Data.system.eventStream.
@@ -65,10 +65,6 @@ class MainActivity extends Activity with TypedFindView {
 
      Data.fma ! FragmentManager.AttachTo(this)
      Data.fma ! FragmentManager.Create(actor)
-
-
-
-
 
 
      //      server onClick {

@@ -6,6 +6,9 @@ import android.app.{Activity, Fragment, FragmentManager}
 import com.bonin.illuminati.Data.This
 import com.bonin.illuminati.FragmentManager.AttachTo
 import Helper._
+import android.content.Context
+import android.location.{Location, LocationListener, LocationManager}
+import android.os.Bundle
 /**
   * Created by alex4o on 7/11/16.
   */
@@ -20,6 +23,8 @@ object FragmentManager {
 class FragmentManagerActor extends Actor {
   var activity: Activity = null
   var fm : FragmentManager = null
+
+
 
   override def receive: Receive = {
     case FragmentManager.Create(actor: ActorRef) => {

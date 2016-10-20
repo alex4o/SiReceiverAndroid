@@ -32,7 +32,7 @@ object BluetoothActor {
   case class Connected(bluetoothSocket: BluetoothSocket)
 
   case class Send(data: Any)
-  case class Received(data: Array[Byte])
+  case class Received(data: Byte)
   case class Disconected(msg: String)
 
   case class Devices(devices: Set[BluetoothDevice])
@@ -47,6 +47,9 @@ class BluetoothActor(uuidString: String, name: String) extends Actor {
   var instream : InputStream = null
   var outstream : OutputStream = null
 
+
+  var buffer = new Array[Byte](1)
+
   override def preStart(): Unit ={
 
   }
@@ -59,6 +62,12 @@ class BluetoothActor(uuidString: String, name: String) extends Actor {
 
       Future {
         val uuids = device.getUuids
+        for(uuid <- uuids){
+          Log.d("UUID", uuid.getUuid.toString)
+        }
+
+
+
         val socket = device.createInsecureRfcommSocketToServiceRecord(uuids(0).getUuid)
 
         Log.d("CON","Connecting !!!")
@@ -118,6 +127,10 @@ class BluetoothActor(uuidString: String, name: String) extends Actor {
 
       outstream flush
     }
+    case Send(byte: Byte) => {
+      outstream.write(byte)
+      outstream flush
+    }
     case Disconect => {
       btSocket.close()
       context.become(disconnected)
@@ -136,23 +149,9 @@ class BluetoothActor(uuidString: String, name: String) extends Actor {
           
 
 
-          var buffer : Array[Byte] = new Array[Byte](4)
-          var read = instream read buffer
-
-          if(buffer(0) == -34 && buffer(1) == -83){
-            if(buffer(2) > 0 && buffer(2) < 64)
-            {
-              if(buffer(3) != 3){
-                Log.d("BAD_MESSAGE", s"TYPE: ${buffer(3)}")
-              }
-              buffer = new Array[Byte](buffer(2) - 1)
-              var read = instream read buffer
-
-
-              //val buf : ByteBuffer = ByteBuffer.wrap buffer
-              subscriber ! Received(buffer)
-            }
-          }
+         // var buffer : Array[Byte] = new Array[Byte](4)
+          var read = instream read(buffer)
+          subscriber ! Received(buffer(0))
 
 
           //val length : Int = buffer
